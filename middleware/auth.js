@@ -27,7 +27,7 @@ function authenticateJWT(req, res, next) {
   }
 }
 
-/** Middleware to check for admin account
+/** Middleware to check for admin flag
  * If not, raises Unauthorized.
  *
  * ***/
@@ -37,6 +37,25 @@ function ensureAdmin(req, res, next) {
     const payload = jwt.verify(token, SECRET_KEY);
 
     if (payload.is_admin !== true) throw new UnauthorizedError();
+
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+/** Middleware to check for current user or admin
+ * If not, raises Unauthorized.
+ *
+ * ***/
+
+function ensureCurrentUserOrAdmin(req, res, next) {
+  try {
+    const token = req.headers.authorization.split(" ")[1]; // Bearer <token>
+    const payload = jwt.verify(token, SECRET_KEY);
+
+    if (payload.username !== req.params.username && payload.is_admin !== true)
+      throw new UnauthorizedError();
 
     return next();
   } catch (err) {
@@ -62,4 +81,5 @@ module.exports = {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,
+  ensureCurrentUserOrAdmin,
 };
