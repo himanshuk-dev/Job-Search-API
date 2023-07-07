@@ -33,11 +33,9 @@ function authenticateJWT(req, res, next) {
  * ***/
 function ensureAdmin(req, res, next) {
   try {
-    const token = req.headers.authorization.split(" ")[1]; // Bearer <token>
-    const payload = jwt.verify(token, SECRET_KEY);
-
-    if (payload.is_admin !== true) throw new UnauthorizedError();
-
+    if (!res.locals.user || !res.locals.user.isAdmin) {
+      throw new UnauthorizedError();
+    }
     return next();
   } catch (err) {
     return next(err);
@@ -51,12 +49,10 @@ function ensureAdmin(req, res, next) {
 
 function ensureCurrentUserOrAdmin(req, res, next) {
   try {
-    const token = req.headers.authorization.split(" ")[1]; // Bearer <token>
-    const payload = jwt.verify(token, SECRET_KEY);
-
-    if (payload.username !== req.params.username && payload.is_admin !== true)
+    const user = res.locals.user;
+    if (!(user && (user.isAdmin || user.username === req.params.username))) {
       throw new UnauthorizedError();
-
+    }
     return next();
   } catch (err) {
     return next(err);
