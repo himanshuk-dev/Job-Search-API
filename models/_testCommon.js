@@ -15,19 +15,22 @@ async function commonBeforeAll() {
            ('c2', 'C2', 2, 'Desc2', 'http://c2.img'),
            ('c3', 'C3', 3, 'Desc3', 'http://c3.img')`);
 
-  await db.query(`
+  const hashedPassword1 = await bcrypt.hash("password1", BCRYPT_WORK_FACTOR);
+  const hashedPassword2 = await bcrypt.hash("password2", BCRYPT_WORK_FACTOR);
+
+  await db.query(
+    `
         INSERT INTO users(username,
                           password,
                           first_name,
                           last_name,
-                          email)
-        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com'),
-               ('u2', $2, 'U2F', 'U2L', 'u2@email.com')
+                          email,
+                          is_admin)
+        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com', true),
+               ('u2', $2, 'U2F', 'U2L', 'u2@email.com', false)
         RETURNING username`,
-      [
-        await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
-        await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
-      ]);
+    [hashedPassword1, hashedPassword2]
+  );
 }
 
 async function commonBeforeEach() {
@@ -41,7 +44,6 @@ async function commonAfterEach() {
 async function commonAfterAll() {
   await db.end();
 }
-
 
 module.exports = {
   commonBeforeAll,

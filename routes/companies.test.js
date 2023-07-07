@@ -18,6 +18,14 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
+let adminToken;
+let nonAdminToken;
+
+beforeAll(async function () {
+  adminToken = createToken("u1", true);
+  nonAdminToken = createToken("u2", false);
+});
+
 /************************************** POST /companies */
 
 describe("POST /companies", function () {
@@ -60,6 +68,25 @@ describe("POST /companies", function () {
       })
       .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);
+  });
+
+  test("ok for admins", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompany)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      company: newCompany,
+    });
+  });
+
+  test("unauth for non-admin users", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompany)
+      .set("authorization", `Bearer ${nonAdminToken}`);
+    expect(resp.statusCode).toEqual(401);
   });
 });
 
@@ -260,6 +287,34 @@ describe("PATCH /companies/:handle", function () {
       .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
+
+  test("works for admins", async function () {
+    const resp = await request(app)
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      company: {
+        handle: "c1",
+        name: "C1-new",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+    });
+  });
+
+  test("unauth for non-admin users", async function () {
+    const resp = await request(app)
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      })
+      .set("authorization", `Bearer ${nonAdminToken}`);
+    expect(resp.statusCode).toEqual(401);
+  });
 });
 
 /************************************** DELETE /companies/:handle */
@@ -282,5 +337,19 @@ describe("DELETE /companies/:handle", function () {
       .delete(`/companies/nope`)
       .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(404);
+  });
+
+  test("works for admins", async function () {
+    const resp = await request(app)
+      .delete(`/companies/c1`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({ deleted: "c1" });
+  });
+
+  test("unauth for non-admin users", async function () {
+    const resp = await request(app)
+      .delete(`/companies/c1`)
+      .set("authorization", `Bearer ${nonAdminToken}`);
+    expect(resp.statusCode).toEqual(401);
   });
 });
