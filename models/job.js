@@ -18,7 +18,7 @@ class Job {
       `SELECT title 
       FROM jobs 
       WHERE title = $1 
-      AND handle = $2`,
+      AND company_handle = $2`,
       [title, handle]
     );
 
@@ -34,7 +34,6 @@ class Job {
     );
 
     const job = result.rows[0];
-
     return job;
   }
 
@@ -66,8 +65,8 @@ class Job {
       whereExpressions.push(`salary >= $${queryValues.length}`);
     }
 
-    if (hasEquity) {
-      whereExpressions.push(`equity > 0`);
+    if (hasEquity === "true") {
+      whereExpressions.push(`equity > 0 AND equity IS NOT NULL`);
     }
 
     if (whereExpressions.length > 0) {
@@ -130,7 +129,7 @@ class Job {
                               salary, 
                               equity, 
                               company_handle AS "handle"`;
-    const result = await db.query(querySql, [...values, title]);
+    const result = await db.query(querySql, `[...values, %${title}%]`);
     const job = result.rows[0];
 
     if (!job) throw new NotFoundError(`No job: ${title}`);

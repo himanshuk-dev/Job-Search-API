@@ -1,28 +1,22 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://our.job.com/jobUpdate.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://our.company.com/jobUpdate.schema.json",
   "type": "object",
-  "default": {},
-  "required": [],
   "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    },
     "salary": {
       "type": "integer",
       "minimum": 0
     },
     "equity": {
-      "type": "number",
-      "default": 0.0
-    },
-    "company_handle": {
-      "type": "string"
+      "type": "string",
+      "pattern": "0|(0?\\.[0-9]+)"
     }
   },
-  "examples": [
-    {
-      "title": "Software Engineer",
-      "salary": 120000,
-      "equity": 0.05,
-      "company_handle": "tech_inc"
-    }
-  ]
+  "additionalProperties": false,
+  "required": ["title"]
 }
