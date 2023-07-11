@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://our.job.com/jobUpdate.schema.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": ["title", "salary", "equity", "company_handle"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "default": "",
+      "title": "The title Schema",
+      "examples": ["Software Engineer"]
+    },
+    "salary": {
+      "type": "integer",
+      "default": 0,
+      "title": "The salary Schema",
+      "examples": [120000]
+    },
+    "equity": {
+      "type": "number",
+      "default": 0.0,
+      "title": "The equity Schema",
+      "examples": [0.05]
+    },
+    "company_handle": {
+      "type": "string",
+      "default": "",
+      "title": "The company_handle Schema",
+      "examples": ["tech_inc"]
+    }
+  },
+  "examples": [
+    {
+      "title": "Software Engineer",
+      "salary": 120000,
+      "equity": 0.05,
+      "company_handle": "tech_inc"
+    }
+  ]
+}
