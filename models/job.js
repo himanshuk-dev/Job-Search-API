@@ -40,16 +40,15 @@ class Job {
 
   /** Find all jobs.
    *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * Returns [{title, salary, equity, company_handle }, ...]
    * */
 
   static async findAll(filters = {}) {
-    let query = `SELECT handle,
-                            title,
-                            salary,
-                            equity,
-                            company_handle AS "handle",
-                     FROM jobs`;
+    let query = `SELECT title, 
+                    salary, 
+                    equity, 
+                    company_handle AS "handle",
+                    FROM jobs`;
     let whereExpressions = [];
     let queryValues = [];
 
@@ -79,4 +78,83 @@ class Job {
     const jobsRes = await db.query(query, queryValues);
     return jobsRes.rows;
   }
+  /** Given a job title, return data about job.
+   *
+   * Returns {title, salary, equity, company_handle }
+   *   where jobs is [{id, title, salary, equity, company_handle }, ...]
+   *
+   * Throws NotFoundError if not found.
+   **/
+
+  static async get(title) {
+    const jobRes = await db.query(
+      `SELECT title, 
+          salary, 
+          equity, 
+          company_handle AS "handle",
+          FROM jobs
+          WHERE title = $1`,
+      [title]
+    );
+
+    const job = jobRes.rows[0];
+
+    if (!job) throw new NotFoundError(`No job: ${title}`);
+
+    return job;
+  }
+
+  /** Update job data with `data`.
+   *
+   * This is a "partial update" --- it's fine if data doesn't contain all the
+   * fields; this only changes provided ones.
+   *
+   * Data can include: {title, salary, equity, company_handle }
+   *
+   * Returns {title, salary, equity, company_handle }
+   *
+   * Throws NotFoundError if not found.
+   */
+
+  static async update(title, data) {
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      salary: "salary",
+      equity: "equity",
+    });
+    const titleVarIdx = "$" + (values.length + 1);
+
+    const querySql = `UPDATE jobs 
+                    SET ${setCols} 
+                    WHERE title = ${titleVarIdx} 
+                    RETURNING title, 
+                              salary, 
+                              equity, 
+                              company_handle AS "handle"`;
+    const result = await db.query(querySql, [...values, title]);
+    const job = result.rows[0];
+
+    if (!job) throw new NotFoundError(`No job: ${title}`);
+
+    return job;
+  }
+
+  /** Delete given job from database; returns undefined.
+   *
+   * Throws NotFoundError if company not found.
+   **/
+
+  static async remove(title) {
+    const result = await db.query(
+      `DELETE
+         FROM jobs
+         WHERE title = $1
+         RETURNING title`,
+      [title]
+    );
+    const job = result.rows[0];
+
+    if (!job) throw new NotFoundError(`No job: ${title}`);
+  }
 }
+
+module.exports = Job;
