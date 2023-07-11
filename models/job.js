@@ -45,10 +45,10 @@ class Job {
 
   static async findAll(filters = {}) {
     let query = `SELECT title, 
-                    salary, 
-                    equity, 
-                    company_handle AS "handle",
-                    FROM jobs`;
+                  salary, 
+                  equity, 
+                  company_handle AS "handle"
+                  FROM jobs`;
     let whereExpressions = [];
     let queryValues = [];
 
@@ -58,7 +58,7 @@ class Job {
 
     if (title) {
       queryValues.push(`%${title}%`);
-      whereExpressions.push(`name ILIKE $${queryValues.length}`);
+      whereExpressions.push(`title ILIKE $${queryValues.length}`);
     }
 
     if (minSalary !== undefined) {
@@ -74,7 +74,7 @@ class Job {
       query += " WHERE " + whereExpressions.join(" AND ");
     }
 
-    query += " ORDER BY name";
+    query += " ORDER BY title";
     const jobsRes = await db.query(query, queryValues);
     return jobsRes.rows;
   }
@@ -91,10 +91,10 @@ class Job {
       `SELECT title, 
           salary, 
           equity, 
-          company_handle AS "handle",
+          company_handle AS "handle"
           FROM jobs
-          WHERE title = $1`,
-      [title]
+          WHERE title ILIKE $1`,
+      [`%${title}%`]
     );
 
     const job = jobRes.rows[0];
