@@ -60,6 +60,27 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+
+  const createJob = async (title, salary, equity, company_handle) => {
+    let job = await Job.create({
+      title,
+      salary,
+      equity,
+      company_handle,
+    });
+    return job.id;
+  };
+
+  const testJobIds = [];
+
+  const run = async () => {
+    testJobIds.push(await createJob("Job1", 100, "0.1", "c1"));
+    testJobIds.push(await createJob("Job2", 200, "0.2", "c1"));
+    testJobIds.push(await createJob("Job3", 300, "0", "c1"));
+    testJobIds.push(await createJob("Job4", null, null, "c1"));
+  };
+
+  run();
 }
 
 async function commonBeforeEach() {

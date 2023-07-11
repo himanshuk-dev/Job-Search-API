@@ -138,7 +138,7 @@ router.delete(
 
 router.post(
   "/:username/jobs/:id",
-  ensureCorrectUserOrAdmin,
+  ensureCurrentUserOrAdmin,
   async function (req, res, next) {
     try {
       const jobId = +req.params.id;
