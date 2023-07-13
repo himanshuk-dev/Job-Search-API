@@ -1,10 +1,6 @@
-
-
-<div align='right'>
-
 [![Github](github.png)](https://github.com/coderhimanshu1/Job-Search-API)
 
-</div>
+
 
 ## Overview
 
