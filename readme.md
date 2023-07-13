@@ -1,5 +1,6 @@
-[![GitHub logo](https://icons8.com/icon/106562/github)]([Github](https://github.com/coderhimanshu1/Job-Search-API))
 
+
+[![Github](https://github.com/coderhimanshu1/Job-Search-API/blob/main/github.png)](https://github.com/coderhimanshu1/Job-Search-API)
 
 
 ## Overview
