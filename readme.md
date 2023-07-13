@@ -1,3 +1,7 @@
+[![GitHub logo]()]([Github](https://github.com/coderhimanshu1/Job-Search-API))
+
+
+
 ## Overview
 
 The job search API allows users to manage and interact with user, job, and company data. It has various endpoints that handle authentication, user, company, and job operations.
