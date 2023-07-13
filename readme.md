@@ -8,7 +8,7 @@ The job search API allows users to manage and interact with user, job, and compa
 
 All request and response bodies are in JSON format.
 
-##Base URL
+## Base URL
 
 If you want to run this project locally, base URL is:<br />
 
