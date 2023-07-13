@@ -1,4 +1,4 @@
-[![GitHub logo]()]([Github](https://github.com/coderhimanshu1/Job-Search-API))
+[![GitHub logo](https://icons8.com/icon/106562/github)]([Github](https://github.com/coderhimanshu1/Job-Search-API))
 
 
 
