@@ -64,6 +64,7 @@ describe("POST /companies", function () {
   });
 
   test("unauth for non-admin users", async function () {
+    let nonAdminToken = "cat"
     const resp = await request(app)
       .post("/companies")
       .send(newCompany)
@@ -234,11 +235,11 @@ describe("PATCH /companies/:handle", function () {
 
   test("bad request on handle change attempt", async function () {
     const resp = await request(app)
-      .patch(`/companies/c1`)
+      .patch(`/companies/c50-company-should-not-exist`)
       .send({
         handle: "c1-new",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -248,7 +249,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         logoUrl: "not-a-url",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 

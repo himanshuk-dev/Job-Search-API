@@ -125,11 +125,16 @@ class User {
   static async get(username) {
     const userRes = await db.query(
       `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
+                  u.first_name AS "firstName",
+                  u.last_name AS "lastName",
+                  u.email,
+                  u.is_admin AS "isAdmin",
+                  (
+                    SELECT ARRAY_AGG(a.job_id)
+                    FROM applications AS a
+                    WHERE a.username = u.username
+                  ) AS applications
+           FROM users AS u
            WHERE username = $1`,
       [username]
     );
@@ -218,7 +223,7 @@ class User {
     const job = preCheck.rows[0];
 
     if (!job) throw new NotFoundError(`No job: ${jobId}`);
-
+    
     const preCheck2 = await db.query(
       `SELECT username
            FROM users

@@ -6,11 +6,12 @@ const Company = require("../models/company");
 const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 
-const testJobIds = [];
+let testJobIds = [];
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
+
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM companies");
 
@@ -21,6 +22,7 @@ async function commonBeforeAll() {
     description: "Desc1",
     logoUrl: "http://c1.img",
   });
+
   await Company.create({
     handle: "c2",
     name: "C2",
@@ -28,6 +30,7 @@ async function commonBeforeAll() {
     description: "Desc2",
     logoUrl: "http://c2.img",
   });
+
   await Company.create({
     handle: "c3",
     name: "C3",
@@ -44,6 +47,7 @@ async function commonBeforeAll() {
     password: "password1",
     isAdmin: false,
   });
+
   await User.register({
     username: "u2",
     firstName: "U2F",
@@ -52,35 +56,32 @@ async function commonBeforeAll() {
     password: "password2",
     isAdmin: false,
   });
+
   await User.register({
-    username: "u3",
+    username: "admin",
     firstName: "U3F",
     lastName: "U3L",
-    email: "user3@user.com",
+    email: "admin@email.com",
     password: "password3",
-    isAdmin: false,
+    isAdmin: true,
   });
 
-  const createJob = async (title, salary, equity, company_handle) => {
+  async function createJob(title, salary, equity, company_handle) {
     let job = await Job.create({
       title,
       salary,
       equity,
-      company_handle,
+      handle: company_handle,
     });
-    return job.id;
-  };
+    return job;
+  }
 
-  const testJobIds = [];
-
-  const run = async () => {
-    testJobIds.push(await createJob("Job1", 100, "0.1", "c1"));
-    testJobIds.push(await createJob("Job2", 200, "0.2", "c1"));
-    testJobIds.push(await createJob("Job3", 300, "0", "c1"));
-    testJobIds.push(await createJob("Job4", null, null, "c1"));
-  };
-
-  run();
+  testJobIds = await Promise.all([
+    createJob("Job1", 100, "0.1", "c1"),
+    createJob("Job2", 200, "0.2", "c1"),
+    createJob("Job3", 300, "0", "c1"),
+    createJob("Job4", null, null, "c1"),
+  ]);
 }
 
 async function commonBeforeEach() {
@@ -95,6 +96,8 @@ async function commonAfterAll() {
   await db.end();
 }
 
+const getTestJobIds = () => testJobIds.map(job => job.id);
+
 const u1Token = createToken({ username: "u1", isAdmin: false });
 const u2Token = createToken({ username: "u2", isAdmin: false });
 const adminToken = createToken({ username: "admin", isAdmin: true });
@@ -107,4 +110,5 @@ module.exports = {
   u1Token,
   u2Token,
   adminToken,
+  getTestJobIds
 };

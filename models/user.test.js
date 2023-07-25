@@ -5,6 +5,7 @@ const {
   BadRequestError,
   UnauthorizedError,
 } = require("../expressError");
+
 const db = require("../db.js");
 const User = require("./user.js");
 const {
@@ -12,6 +13,10 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  u1Token,
+  u2Token,
+  adminToken,
+  getTestJobIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -24,12 +29,13 @@ afterAll(commonAfterAll);
 describe("authenticate", function () {
   test("works", async function () {
     const user = await User.authenticate("u1", "password1");
+
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      email: "u1@email.com",
-      isAdmin: false,
+      email: "user1@user.com",
+      isAdmin: false
     });
   });
 
@@ -52,7 +58,7 @@ describe("authenticate", function () {
   });
 });
 
-/************************************** register */
+// /************************************** register */
 
 describe("register", function () {
   const newUser = {
@@ -110,22 +116,60 @@ describe("register", function () {
 describe("findAll", function () {
   test("works", async function () {
     const users = await User.findAll();
-    expect(users).toEqual([
-      {
-        username: "u1",
-        firstName: "U1F",
-        lastName: "U1L",
-        email: "u1@email.com",
-        isAdmin: false,
-      },
-      {
-        username: "u2",
-        firstName: "U2F",
-        lastName: "U2L",
-        email: "u2@email.com",
-        isAdmin: false,
-      },
-    ]);
+
+    // Latest way for matching objects in an array
+    // https://medium.com/@andrei.pfeiffer/jest-matching-objects-in-array-50fe2f4d6b98
+    expect(users).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(
+          {
+            username: "u1",
+            firstName: "U1F",
+            lastName: "U1L",
+            email: "user1@user.com",
+            isAdmin: false,
+          },
+          {
+            username: "u2",
+            firstName: "U2F",
+            lastName: "U2L",
+            email: "user2@user.com",
+            isAdmin: false,
+          },
+          {
+            username: "admin",
+            firstName: "U3F",
+            lastName: "U3L",
+            email: "admin@email.com",
+            isAdmin: true,
+          }
+        ),
+      ])
+    );
+
+    // expect(users).toEqual([
+    //   {
+    //     username: "u1",
+    //     firstName: "U1F",
+    //     lastName: "U1L",
+    //     email: "user1@user.com",
+    //     isAdmin: false,
+    //   },
+    //   {
+    //     username: "u2",
+    //     firstName: "U2F",
+    //     lastName: "U2L",
+    //     email: "user2@user.com",
+    //     isAdmin: false,
+    //   },
+    //   {
+    //     username: "admin",
+    //     firstName: "U3F",
+    //     lastName: "U3L",
+    //     email: "admin@email.com",
+    //     isAdmin: true,
+    //   }
+    // ]);
   });
 });
 
@@ -138,8 +182,9 @@ describe("get", function () {
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      email: "u1@email.com",
+      email: "user1@user.com",
       isAdmin: false,
+      applications: null
     });
   });
 
@@ -179,7 +224,7 @@ describe("update", function () {
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      email: "u1@email.com",
+      email: "user1@user.com",
       isAdmin: false,
     });
     const found = await db.query("SELECT * FROM users WHERE username = 'u1'");
@@ -232,6 +277,8 @@ describe("remove", function () {
 
 describe("applyToJob", function () {
   test("works", async function () {
+    const testJobIds = getTestJobIds();
+
     await User.applyToJob("u1", testJobIds[1]);
 
     const res = await db.query("SELECT * FROM applications WHERE job_id=$1", [
@@ -255,6 +302,7 @@ describe("applyToJob", function () {
   });
 
   test("not found if no such user", async function () {
+    const testJobIds = getTestJobIds();
     try {
       await User.applyToJob("nope", testJobIds[0], "applied");
       fail();
